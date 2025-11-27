@@ -9,6 +9,10 @@ class ExampleActor extends Actor
 {
     private int cnt = 10;
 
+    public ExampleActor(World world) {
+        super(world);
+    }
+
     @Override
     public void Tick(float DeltaTime) {
         if(cnt != 0)
@@ -19,24 +23,18 @@ class ExampleActor extends Actor
         return cnt;
     }
 }
-class TestWorld extends World
-{
-    public TestWorld(ExampleActor actor)
-    {
-        AddActor(actor);
-    }
-}
 public class WorldTest {
     @Test
     public void Test()
     {
-        ExampleActor actor = new ExampleActor();
-        try (TestWorld t = new TestWorld(actor)) {
+        try {
+            World t = new World();
+            ExampleActor actor = new ExampleActor(t);
+            t.Start();
             Thread.sleep(100);
+            assert 0 == actor.getCnt();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-        assert 10 == actor.getCnt();
     }
 }

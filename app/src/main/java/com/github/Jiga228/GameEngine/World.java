@@ -1,14 +1,14 @@
 package com.github.Jiga228.GameEngine;
 
 import com.github.Jiga228.GameEngine.Actors.Actor;
+import com.github.Jiga228.GameEngine.Actors.Mesh;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public abstract class World implements AutoCloseable {
+public class World {
     private final ArrayList<Actor> actors = new ArrayList<>();
     private final Object mActors = new Object();
-    // private final ArrayList<IController> controllers = new ArrayList<>();
     private final AtomicBoolean isRunning = new AtomicBoolean(true);
     private final Thread ActorsThread = new Thread(()->{
         long delta_time = 0;
@@ -23,12 +23,6 @@ public abstract class World implements AutoCloseable {
             delta_time = System.currentTimeMillis() - first_time;
         }
     });
-//    private Thread ControllersThread = new Thread(()->{
-//        while (isRunning.get())
-//        {
-//
-//        }
-//    });
 
     public void Start()
     {
@@ -39,15 +33,12 @@ public abstract class World implements AutoCloseable {
         }
 
         ActorsThread.start();
-        //ControllersThread.start();
     }
 
-    @Override
-    public void close() throws Exception {
+    public void close() throws InterruptedException {
         isRunning.set(false);
         ActorsThread.join();
         actors.clear();
-        // controllers.clear();
     }
 
     public void AddActor(Actor actor)
@@ -56,5 +47,19 @@ public abstract class World implements AutoCloseable {
         {
             actors.add(actor);
         }
+    }
+
+    public ArrayList<Mesh> GetMeshes()
+    {
+        ArrayList<Mesh> meshes = new ArrayList<>();
+        synchronized (mActors)
+        {
+            for (Actor i : actors)
+            {
+                if(i instanceof Mesh)
+                    meshes.add((Mesh)i);
+            }
+        }
+        return meshes;
     }
 }
